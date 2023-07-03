@@ -6,7 +6,6 @@ from h5py import (
     HLObject,
     Dataset,
     Group,
-    File,
     __version__ as h5py_version
 )
 from h5py._hl.vds import VDSmap
@@ -480,9 +479,8 @@ def _walk(g: HLObject, prefix: str = '') -> List[str]:
 
     return datasets
 
-
 def delete_versions(
-    f: Union[VersionedHDF5File, File],
+    f: Union[VersionedHDF5File, 'h5py.File'],
     versions_to_delete: Iterable[str]
 ):
     """Completely delete the given versions from a file
