@@ -18,34 +18,20 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  build:
+    uses: peytondmurray/versioned-hdf5/.github/workflows/docs.yml@main
+
   deploy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+    needs: build
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - uses: actions/setup-python@v4
+      - name: Download docs
+        uses: actions/download-artifact@v3
         with:
-          python-version: 3.11
-
-      - name: Setup Graphviz
-        run: |
-          sudo apt install graphviz -y
-
-      - name: Install versioned-hdf5
-        run: |
-          pip install .[doc]
-
-      - name: Build docs
-        working-directory: docs
-        run: |
-          # Need to set timezone to avoid a sphinx/babel issue
-          # when using act to run locally:
-          # https://github.com/nektos/act/issues/1853
-          TZ=UTC make html
+          name: docs
 
       - name: Setup Pages
         uses: actions/configure-pages@v3
@@ -53,7 +39,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: 'docs/_build/html/'
+          path: 'docs/'
 
       - name: Deploy to GitHub Pages
         id: deployment
