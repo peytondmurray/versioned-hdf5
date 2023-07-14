@@ -1,0 +1,30 @@
+name: Run benchmarks
+
+on:
+  pull_request:
+  workflow_call:
+
+jobs:
+  run-benchmarks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: 3.11
+
+      - name: Install versioned-hdf5
+        run: |
+          pip install .[benchmark]
+
+      - name: Run benchmarks
+        run: |
+          set -xe
+          asv run -k -e ALL
+          asv publish
+
+      - name: Upload benchmarks
+        uses: actions/upload-artifact@v3
+        with:
+          name: benchmarks
+          path: .asv/html/*

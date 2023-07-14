@@ -34,6 +34,9 @@ setuptools.setup(
         "doc": [
             "sphinx",
             "myst-parser",
+        ],
+        "benchmark": [
+            "asv",
         ]
     }
 )
