@@ -1,0 +1,36 @@
+[build-system]
+build-backend = 'mesonpy'
+requires = ['meson-python']
+
+[project]
+name = 'versioned-hdf5'
+dynamic = ['version']
+description = 'Versioned HDF5'
+dependencies = [
+    "h5py",
+    "numpy",
+    "ndindex>=1.5.1"
+]
+readme = 'README.md'
+requires-python = '>=3.8'
+license = {text = 'BSD'}
+authors = [
+    {name = 'Quansight'},
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+Homepage = "https://github.com/deshaw/versioned-hdf5"
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+]
+doc = [
+    "sphinx",
+    "myst-parser",
+]
