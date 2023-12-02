@@ -1,5 +1,5 @@
 project(
-  'stringdtype',
+  'versioned-hdf5',
   'c',
 )
 
@@ -27,18 +27,24 @@ srcs = [
 
 py.install_sources(
   [
-    'stringdtype/__init__.py',
-    'stringdtype/scalar.py',
+    'versioned_hdf5/__init__.py',
+    'versioned_hdf5/_api.py',
+    'versioned_hdf5/backend.py',
+    'versioned_hdf5/hashtable.py',
+    'versioned_hdf5/replay.py',
+    'versioned_hdf5/slicetools.py',
+    'versioned_hdf5/versions.py',
+    'versioned_hdf5/wrappers.py',
   ],
-  subdir: 'stringdtype',
+  subdir: 'versioned_hdf5',
   pure: false
 )
 
 py.extension_module(
-  '_main',
+  '_compiled',
   srcs,
   install: true,
-  subdir: 'stringdtype',
+  subdir: 'versioned_hdf5',
   # include_directories: includes,
   # dependencies: [np_dep, npymath_lib]
 )
