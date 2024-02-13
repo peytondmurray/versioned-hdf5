@@ -91,6 +91,9 @@ ignore = [
 
 [tool.ruff.per-file-ignores]
 "__init__.py" = ["F401"]
+"test_*.py" = [
+    "ANN001", # Ignore missing type annotations for test arguments, which are fixtures or mocks
+]
 
 [project.optional-dependencies]
 dev = ["pre-commit>=3.6.0"]
