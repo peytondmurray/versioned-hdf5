@@ -87,6 +87,15 @@ ignore = [
     "D206", # Docstrings should be indented with spaces; unnecessary when running ruff-format
     "E501", # Line length too long; unnecessary when running ruff-format
     "W191", # Indentation contains tabs; unnecessary when running ruff-format
+
+    # Temporarily turn off to address separately
+    "ANN001", # Missing type annotations
+    "ANN002", # Missing docstring in method
+    "ANN202", # Missing return type in method
+    "D101", # Missing docstring in class
+    "D102", # Missing docstring in method
+    "D103", # Missing docstring in function
+    "D107", # Missing docstring in __init__
 ]
 
 [tool.ruff.per-file-ignores]
