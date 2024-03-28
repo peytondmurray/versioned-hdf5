@@ -1,10 +1,11 @@
 import datetime
 import posixpath
 from collections import defaultdict
+from typing import Union
 from uuid import uuid4
 
 import numpy as np
-from h5py import Dataset, Group
+from h5py import Dataset, File, Group
 
 from .backend import create_virtual_dataset, write_dataset, write_dataset_chunks
 from .wrappers import (
@@ -237,7 +238,11 @@ def get_nth_previous_version(f, version_name, n):
     return version
 
 
-def get_version_by_timestamp(f, timestamp, exact=False):
+def get_version_by_timestamp(
+    f: File,
+    timestamp: Union[np.datetime64, datetime.datetime],
+    exact: bool = False,
+):
     versions = f["_version_data/versions"]
     if isinstance(timestamp, np.datetime64):
         ts = (

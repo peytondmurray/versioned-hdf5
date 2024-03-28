@@ -7,7 +7,7 @@ change.
 import datetime
 import logging
 from contextlib import contextmanager
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Dict, List, Optional, Set, Tuple, Union
 
 import h5py
 import ndindex
@@ -77,7 +77,7 @@ class VersionedHDF5File:
     should be closed separately.)
     """
 
-    def __init__(self, f):
+    def __init__(self, f: h5py.File):
         self.f = f
         if "_version_data" not in f:
             initialize(f)
@@ -111,9 +111,7 @@ class VersionedHDF5File:
                             "Ugprading data_version to %d, no action required.",
                             DATA_VERSION,
                         )
-                        self.f["_version_data"]["versions"].attrs[
-                            "data_version"
-                        ] = DATA_VERSION
+                        self.data_version_identifier = DATA_VERSION
 
             elif self.data_version_identifier > DATA_VERSION:
                 raise ValueError(
@@ -122,16 +120,18 @@ class VersionedHDF5File:
                 )
 
         self._closed = False
-        self._version_cache = {}
+        self._version_cache: Dict[
+            Union[int, np.integer, datetime.datetime, np.datetime64], h5py.Group
+        ] = {}
 
     @property
-    def _versions(self):
+    def _versions(self) -> h5py.Group:
         """Shorthand reference to the versions group of the file."""
-        return self.f["_version_data"]["versions"]
+        return self.f["_version_data"]["versions"]  # type: ignore
 
     @property
-    def _version_data(self):
-        return self.f["_version_data"]
+    def _version_data(self) -> h5py.Group:
+        return self.f["_version_data"]  # type: ignore
 
     @property
     def closed(self):
@@ -152,8 +152,13 @@ class VersionedHDF5File:
         """
         return self._versions.attrs["current_version"]
 
+    @current_version.setter
+    def current_version(self, version_name: str) -> None:
+        set_current_version(self.f, version_name)
+        self._version_cache.clear()
+
     @property
-    def data_version_identifier(self) -> str:
+    def data_version_identifier(self) -> int:
         """Return the data version identifier.
 
         Different versions of versioned-hdf5 handle data slightly differently.
@@ -164,13 +169,13 @@ class VersionedHDF5File:
 
         Returns
         -------
-        str
+        int
             The data version identifier string
         """
-        return self.f["_version_data/versions"].attrs.get("data_version", 1)
+        return int(self.f["_version_data/versions"].attrs.get("data_version", 1))  # type: ignore
 
     @data_version_identifier.setter
-    def data_version_identifier(self, version: int):
+    def data_version_identifier(self, version: int) -> None:
         """Set the data version identifier for the current file.
 
         Parameters
@@ -180,12 +185,7 @@ class VersionedHDF5File:
         """
         self.f["_version_data/versions"].attrs["data_version"] = version
 
-    @current_version.setter
-    def current_version(self, version_name):
-        set_current_version(self.f, version_name)
-        self._version_cache.clear()
-
-    def get_version_by_name(self, version):
+    def get_version_by_name(self, version: str) -> Union[h5py.Group, InMemoryGroup]:
         if version.startswith("/"):
             raise ValueError(
                 "Versions cannot start with '/'. VersionedHDF5File should not be used to access the top-level of an h5py File."
@@ -203,10 +203,15 @@ class VersionedHDF5File:
                 "Version groups cannot accessed from the VersionedHDF5File object before they are committed."
             )
         if self.f.file.mode == "r":
-            return g
-        return InMemoryGroup(g._id, _committed=True)
+            return g  # type: ignore
 
-    def get_version_by_timestamp(self, timestamp, exact=False):
+        return InMemoryGroup(g._id, _committed=True)  # type: ignore
+
+    def get_version_by_timestamp(
+        self,
+        timestamp: Union[np.datetime64, datetime.datetime],
+        exact: bool = False,
+    ) -> Union[h5py.Group, InMemoryGroup]:
         version = get_version_by_timestamp(self.f, timestamp, exact=exact)
         g = self._versions[version]
         if not g.attrs["committed"]:
@@ -214,16 +219,19 @@ class VersionedHDF5File:
                 "Version groups cannot accessed from the VersionedHDF5File object before they are committed."
             )
         if self.f.file.mode == "r":
-            return g
-        return InMemoryGroup(g._id, _committed=True)
+            return g  # type: ignore
+        return InMemoryGroup(g._id, _committed=True)  # type: ignore
 
-    def __getitem__(self, item):
+    def __getitem__(
+        self,
+        item: Optional[Union[str, int, np.integer, datetime.datetime, np.datetime64]],
+    ):
         if self.closed:
             raise ValueError("File is closed")
         if item in self._version_cache:
             # We don't cache version names because those are already cheap to
             # lookup.
-            return self._version_cache[item]
+            return self._version_cache[item]  # type: ignore
 
         if item is None:
             return self.get_version_by_name(self.current_version)
