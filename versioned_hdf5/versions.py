@@ -1,6 +1,7 @@
 import datetime
 import posixpath
 from collections import defaultdict
+from typing import Union
 from uuid import uuid4
 
 import numpy as np
@@ -253,7 +254,9 @@ def get_nth_previous_version(f, version_name, n):
     return version
 
 
-def get_version_by_timestamp(f, timestamp, exact=False):
+def get_version_by_timestamp(
+    f, timestamp: Union[np.datetime64, datetime.datetime], exact=False
+):
     versions = f["_version_data/versions"]
     if isinstance(timestamp, np.datetime64):
         ts = (

@@ -7,7 +7,7 @@ change.
 import datetime
 import logging
 from contextlib import contextmanager
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Dict, Iterator, List, Mapping, Optional, Set, Tuple, Union
 
 import h5py
 import ndindex
@@ -77,7 +77,7 @@ class VersionedHDF5File:
     should be closed separately.)
     """
 
-    def __init__(self, f):
+    def __init__(self, f: h5py.File):
         self.f = f
         if "_version_data" not in f:
             initialize(f)
@@ -122,7 +122,10 @@ class VersionedHDF5File:
                 )
 
         self._closed = False
-        self._version_cache = {}
+        self._version_cache: Dict[
+            Union[str, int, np.integer, datetime.datetime, np.datetime64],
+            Union[h5py.Group, InMemoryGroup],
+        ] = {}
 
     @property
     def _versions(self):
@@ -152,8 +155,13 @@ class VersionedHDF5File:
         """
         return self._versions.attrs["current_version"]
 
+    @current_version.setter
+    def current_version(self, version_name: str) -> None:
+        set_current_version(self.f, version_name)
+        self._version_cache.clear()
+
     @property
-    def data_version_identifier(self) -> str:
+    def data_version_identifier(self) -> int:
         """Return the data version identifier.
 
         Different versions of versioned-hdf5 handle data slightly differently.
@@ -167,7 +175,7 @@ class VersionedHDF5File:
         str
             The data version identifier string
         """
-        return self.f["_version_data/versions"].attrs.get("data_version", 1)
+        return int(self.f["_version_data/versions"].attrs.get("data_version", 1))
 
     @data_version_identifier.setter
     def data_version_identifier(self, version: int):
@@ -180,12 +188,7 @@ class VersionedHDF5File:
         """
         self.f["_version_data/versions"].attrs["data_version"] = version
 
-    @current_version.setter
-    def current_version(self, version_name):
-        set_current_version(self.f, version_name)
-        self._version_cache.clear()
-
-    def get_version_by_name(self, version):
+    def get_version_by_name(self, version: str) -> Union[h5py.Group, InMemoryGroup]:
         if version.startswith("/"):
             raise ValueError(
                 "Versions cannot start with '/'. VersionedHDF5File should not be used to access the top-level of an h5py File."
@@ -206,7 +209,9 @@ class VersionedHDF5File:
             return g
         return InMemoryGroup(g._id, _committed=True)
 
-    def get_version_by_timestamp(self, timestamp, exact=False):
+    def get_version_by_timestamp(
+        self, timestamp: Union[np.datetime64, datetime.datetime], exact: bool = False
+    ):
         version = get_version_by_timestamp(self.f, timestamp, exact=exact)
         g = self._versions[version]
         if not g.attrs["committed"]:
@@ -217,7 +222,10 @@ class VersionedHDF5File:
             return g
         return InMemoryGroup(g._id, _committed=True)
 
-    def __getitem__(self, item):
+    def __getitem__(
+        self,
+        item: Optional[Union[str, int, np.integer, datetime.datetime, np.datetime64]],
+    ):
         if self.closed:
             raise ValueError("File is closed")
         if item in self._version_cache:
@@ -242,7 +250,7 @@ class VersionedHDF5File:
         else:
             raise KeyError(f"Don't know how to get the version for {item!r}")
 
-    def __delitem__(self, item):
+    def __delitem__(self, item: str):
         """
         Delete a version
 
@@ -266,7 +274,11 @@ class VersionedHDF5File:
 
     @contextmanager
     def stage_version(
-        self, version_name: str, prev_version=None, make_current=True, timestamp=None
+        self,
+        version_name: str,
+        prev_version: Optional[Union[str]] = None,
+        make_current: bool = True,
+        timestamp: Optional[Union[np.datetime64, datetime.datetime]] = None,
     ):
         """
         Return a context manager to stage a new version
@@ -330,7 +342,7 @@ class VersionedHDF5File:
             del self.f
             self._closed = True
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """
         Prints friendly status information.
 
@@ -417,7 +429,7 @@ class VersionedHDF5File:
 
         self._rebuild_hashtables(data_groups)
 
-    def _find_all_data_groups(self):
+    def _find_all_data_groups(self) -> List[h5py.Group]:
         # Find all data groups excluding '/_version_data/versions'
         data_groups = []
         for name, group in self.f["_version_data"].items():
@@ -425,7 +437,7 @@ class VersionedHDF5File:
                 data_groups.extend(self._find_data_groups(group))
         return data_groups
 
-    def _rebuild_hashtables(self, data_groups):
+    def _rebuild_hashtables(self, data_groups: List[Union[h5py.Dataset, h5py.Group]]):
         """Rebuild the hashtables in data_groups."""
         for group in data_groups:
             del self.f[group.name]["hash_table"]
@@ -454,7 +466,7 @@ class VersionedHDF5File:
                     items.extend(self._find_data_groups(self.f[f"{node.name}/{item}"]))
         return items
 
-    def _find_object_dtype_data_groups(self):
+    def _find_object_dtype_data_groups(self) -> Iterator[h5py.Group]:
         """Find all data groups with dtype='O'."""
 
         # Find all data groups excluding '/_version_data/versions' of dtype='O'
@@ -472,7 +484,7 @@ class VersionedHDF5File:
 
     def get_diff(
         self, name: str, version1: str, version2: str
-    ) -> Dict[Tuple[slice], Tuple[np.ndarray]]:
+    ) -> Mapping[ndindex.Tuple, tuple[Optional[np.ndarray], Optional[np.ndarray]]]:
         """Compute the difference between two versions of a dataset.
 
         Parameters
@@ -486,7 +498,7 @@ class VersionedHDF5File:
 
         Returns
         -------
-        Dict[Tuple[slice], Tuple[np.ndarray]]
+        Mapping[ndindex.Tuple, tuple[Optional[np.ndarray], Optional[np.ndarray]]]
             A dictionary where the keys are slices that changed from version1 to
             version2, the the values are tuples containing
 
@@ -554,7 +566,7 @@ class VersionedHDF5File:
         name: str,
         sd1: Dict[ndindex.Tuple, ndindex.Tuple],
         sd2: Dict[ndindex.Tuple, ndindex.Tuple],
-    ) -> Dict[ndindex.Tuple, Tuple[np.ndarray]]:
+    ) -> Mapping[ndindex.Tuple, tuple[Optional[np.ndarray], Optional[np.ndarray]]]:
         """Compute the difference between two versions of a dataset.
 
         Parameters
@@ -572,7 +584,7 @@ class VersionedHDF5File:
 
         Returns
         -------
-        Dict[ndindex.Tuple, Tuple[np.ndarray]]:
+        Mapping[ndindex.Tuple, tuple[np.ndarray]]:
             Dict of {changed_virtual_slice: (data_v1, data_v2)} which maps slices of the
             virtual datasets which were modified between the versions to a tuple
             containing the corresponding raw ndarray that was modified. The first
@@ -601,7 +613,7 @@ class VersionedHDF5File:
                 # Data was modified
                 diff[vir2] = (self[v1][name][vir2.raw], self[v2][name][vir2.raw])
 
-        for vir1, src1 in sd1.items():
+        for vir1 in sd1:
             if vir1 not in sd2:
                 # Data was deleted
                 diff[vir1] = (self[v1][name][vir1.raw], None)
