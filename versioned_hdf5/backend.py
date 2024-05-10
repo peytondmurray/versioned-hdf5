@@ -6,6 +6,7 @@ from h5py._hl.filters import guess_chunk
 from ndindex import ChunkSize, Slice, Tuple, ndindex
 from numpy.testing import assert_array_equal
 
+from ._arrays import to_npy_str_array
 from .hashtable import Hashtable
 
 DEFAULT_CHUNK_SIZE = 2**12
@@ -61,7 +62,10 @@ def create_base_dataset(
         shape = data.shape
     else:
         shape = (shape,) if isinstance(shape, int) else tuple(shape)
-        if data is not None and (np.prod(shape, dtype=np.ulonglong) != np.prod(data.shape, dtype=np.ulonglong)):
+        if data is not None and (
+            np.prod(shape, dtype=np.ulonglong)
+            != np.prod(data.shape, dtype=np.ulonglong)
+        ):
             raise ValueError("Shape tuple is incompatible with data")
 
     ndims = len(shape)
