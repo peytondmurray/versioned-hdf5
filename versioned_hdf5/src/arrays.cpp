@@ -1,7 +1,7 @@
-#include <set>
+#include <Python.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
-#include <c++/src/H5DataSet.h>
+#include <hdf5.h>
 
 namespace py = pybind11;
 
@@ -13,16 +13,29 @@ namespace py = pybind11;
  * https://pybind11.readthedocs.io/en/stable/advanced/pycpp/numpy.html
  * for more information.
  *
- * @param mean_t2 Mean temperature for the interval for year 2
+ * @param dataset h5py.Dataset instance to read into a numpy array
  * @return Tuple of three arrays:
  *      (delta_t(year2 - year1), year1, year2)
  */
-py::tuple to_npy_str_array(
-    py::array_t<short> start2,
-    py::array_t<float> mean_t2
+PyObject *to_npy_str_array(
+    PyObject *dataset
+
 ) {
-    py::buffer_info start2_bufinfo = start2.request();
-    py::buffer_info mean_t2_bufinfo = mean_t2.request();
+
+    pybind11::object name = pybind11::getattr(dataset, "name")
+    const char *filename = name.cast<const char *>();
+    hid_t dataset_id = H5Dopen(
+        file_id,
+        filename,
+        H5P_DEFAULT
+    )
+
+    H5Dopen(
+        dataset.
+    )
+
+    H5Ddataset *dataset = dataset.ptr()
+    printf("foo");
 
     // if (
     //     start1_bufinfo.ndim != 1 ||
@@ -65,8 +78,6 @@ py::tuple to_npy_str_array(
     //     }
     // }
 
-    int arrDt = 1;
-    int arrDt = 1;
     int arrDt = 1;
 
     return py::make_tuple(arrDt);

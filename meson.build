@@ -5,6 +5,7 @@ project(
 )
 
 pybind11_dep = dependency('pybind11', version: '>=2.10.4')
+hdf5_dep = dependency('hdf5', language: 'cpp')
 includes = include_directories(
   [
     'versioned_hdf5/src',
@@ -15,7 +16,7 @@ srcs = [
 ]
 
 
-py = import('python').find_installation()
+py = import('python').find_installation(pure: false)
 py.install_sources(
   [
     'versioned_hdf5/tests/__init__.py',
@@ -50,5 +51,5 @@ py.extension_module(
   install: true,
   subdir: 'versioned_hdf5',
   include_directories: includes,
-  dependencies: [pybind11_dep]
+  dependencies: [pybind11_dep, hdf5_dep]
 )
