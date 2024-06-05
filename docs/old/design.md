@@ -48,7 +48,7 @@ For example, say we start with the first version, `version_1`, and create a
 dataset `my_dataset` with `n` chunks. The dataset chunks will be written into the
 raw dataset, and the final virtual dataset will point to those chunks.
 
-```dot
+```{graphviz}
 digraph g {
 graph [
 rankdir = "LR"
@@ -77,7 +77,7 @@ If we then create a version `version_2` based off `version_1`, and modify only
 data contained in CHUNK 2, that new data will be appended to the raw dataset,
 and the resulting virtual dataset for `version_2` will look like this:
 
-```dot
+```{graphviz}
 digraph g {
 graph [
 rankdir = "LR"

@@ -1,0 +1,45 @@
+site_name: Versioned HDF5
+theme:
+  name: material
+extra:
+  version:
+    provider: mike
+plugins:
+  search: null
+  mkdocstrings:
+    default_handler: python
+    handlers:
+      python:
+        import:
+        # latest instead of stable
+        - https://installer.readthedocs.io/en/latest/objects.inv
+        options:
+        #   separate_signature: true
+          merge_init_into_class: true
+          docstring_section_style: spacy
+          signature_crossrefs: true
+          show_symbol_type_heading: true
+          show_symbol_type_toc: true
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - mkdocs_graphviz
+
+extra_javascript:
+  - https://cdn.jsdelivr.net/gh/rod2ik/cdn@main/mkdocs/javascripts/mkdocs-graphviz.js
+
+nav:
+  - Home: index.md
+  - Quickstart Guide: quickstart.md
+  - Installation: installation.md
+  - Performance: performance.md
+  - API Documentation: reference.md
+  - Design: design.md
+  - Changelog: changelog.md
+  - Releasing: releasing.md

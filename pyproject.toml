@@ -96,7 +96,7 @@ ignore = [
 [project.optional-dependencies]
 dev = ["pre-commit>=3.6.0"]
 test = ["pytest"]
-doc = ["sphinx", "myst-parser"]
+doc = ["mkdocs", "mkdocstrings[python]", "mike", "mkdocs-graphviz", "mkdocs-material"]
 
 [tool.setuptools_scm]
 
