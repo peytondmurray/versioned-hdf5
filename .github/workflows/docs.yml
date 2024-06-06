@@ -7,7 +7,12 @@ jobs:
   build-docs:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+
+      - name: Check out tags
+        run: |
+          git fetch origin --tags
+
       - uses: actions/setup-python@v4
         with:
           python-version: 3.11
@@ -36,9 +41,9 @@ jobs:
                       <title>Redirecting to master branch</title>
                       <meta charset='utf-8'>
                       <meta http-equiv='refresh' content='0; url=./master/index.html'>
-                      <link rel='canonical' href='https://deshaw.github.io/versioned-hdf5/master/index.html'>
+                      <link rel='canonical' href='https://peytondmurray.github.io/versioned-hdf5/master/index.html'>
                     </head>
-                  </html>" >> docs/index.html
+                  </html>" >> _build/html/index.html
 
       - name: Upload docs
         uses: actions/upload-artifact@v3
