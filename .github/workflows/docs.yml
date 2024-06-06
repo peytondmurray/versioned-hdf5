@@ -1,13 +1,18 @@
-name: Build docs
+name: Build and deploy docs
 on:
   pull_request:
-  workflow_call:
+  push:
+    branches: ["master"]
+  release:
+    types: [published]
+  workflow_dispatch:
 
 jobs:
-  build-docs:
+  build-deploy-docs:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v4
         with:
           python-version: 3.11
@@ -20,16 +25,46 @@ jobs:
         run: |
           pip install .[doc]
 
+      - name: Update git tags for sphinx-multiversion
+        run: |
+          git fetch --tags
+
       - name: Build docs
         working-directory: docs
         run: |
           # Need to set timezone to avoid a sphinx/babel issue
           # when using act to run locally:
           # https://github.com/nektos/act/issues/1853
-          TZ=UTC make html
+          TZ=UTC sphinx-multiversion . _build/html
 
-      - name: Upload docs
-        uses: actions/upload-artifact@v3
+      # sphinx-multiversion only builds docs for every tag;
+      # this redirects users who visit ./index.html ->
+      # ./master/index.html, which is the development branch docs.
+      - name: Write redirect to development branch
+        if: (github.event_name != 'pull_request')
+        run: |
+          echo "<!DOCTYPE html>
+                  <html>
+                    <head>
+                      <title>Redirecting to master branch</title>
+                      <meta charset='utf-8'>
+                      <meta http-equiv='refresh' content='0; url=./master/index.html'>
+                      <link rel='canonical' href='./master/index.html'>
+                    </head>
+                  </html>" >> docs/_build/html/index.html
+
+
+      - name: Setup Pages
+        if: (github.event_name != 'pull_request')
+        uses: actions/configure-pages@v3
+
+      - name: Upload artifact
+        if: (github.event_name != 'pull_request')
+        uses: actions/upload-pages-artifact@v1
         with:
-          name: docs
-          path: docs/_build/html/*
+          path: 'docs/_build/html'
+
+      - name: Deploy to GitHub Pages
+        if: (github.event_name != 'pull_request')
+        id: deployment
+        uses: actions/deploy-pages@v2
