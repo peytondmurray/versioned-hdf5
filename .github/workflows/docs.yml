@@ -26,7 +26,19 @@ jobs:
           # Need to set timezone to avoid a sphinx/babel issue
           # when using act to run locally:
           # https://github.com/nektos/act/issues/1853
-          TZ=UTC make html
+          TZ=UTC sphinx-multiversion . _build/html
+
+      - name: Set up root document redirect
+        run: |
+          echo "<!DOCTYPE html>
+                  <html>
+                    <head>
+                      <title>Redirecting to master branch</title>
+                      <meta charset='utf-8'>
+                      <meta http-equiv='refresh' content='0; url=./master/index.html'>
+                      <link rel='canonical' href='https://deshaw.github.io/versioned-hdf5/master/index.html'>
+                    </head>
+                  </html>" >> docs/index.html
 
       - name: Upload docs
         uses: actions/upload-artifact@v3
