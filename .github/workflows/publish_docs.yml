@@ -19,7 +19,7 @@ concurrency:
 
 jobs:
   build:
-    uses: deshaw/versioned-hdf5/.github/workflows/docs.yml@master
+    uses: ./.github/workflows/docs.yml
 
   deploy:
     environment:
