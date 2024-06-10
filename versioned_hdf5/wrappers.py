@@ -23,8 +23,11 @@ from h5py._hl.selections import guess_shape
 from h5py._hl.vds import VDSmap
 from ndindex import ChunkSize, Slice, Tuple, ndindex
 
-from .backend import DEFAULT_CHUNK_SIZE
+from .backend import DEFAULT_CHUNK_SIZE, get_available_compression_methods
 from .slicetools import spaceid_to_slice
+
+
+COMPRESSION_OPTS = get_available_compression_methods()
 
 _groups = WeakValueDictionary({})
 
