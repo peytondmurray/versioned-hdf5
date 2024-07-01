@@ -71,6 +71,19 @@ jobs:
                     </head>
                   </html>" >> docs/_build/html/index.html
 
+
+      - name: Checkout benchmarks
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            benchmark_results
+          ref: benchmarks
+          path: benchmark_results
+
+      - name: Move benchmarks to static pages
+        run: |
+          mv benchmark_results docs/_build/html/benchmarks
+
       - name: Setup Pages
         uses: actions/configure-pages@v3
 
