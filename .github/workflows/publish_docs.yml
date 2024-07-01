@@ -42,7 +42,7 @@ jobs:
 
       - name: Install versioned-hdf5
         run: |
-          pip install .[doc]
+          pip install '.[doc,bench]'
 
       - name: Update git tags for sphinx-multiversion
         run: |
@@ -70,6 +70,24 @@ jobs:
                       <link rel='canonical' href='./master/index.html'>
                     </head>
                   </html>" >> docs/_build/html/index.html
+
+      - name: Run benchmarks
+        uses: ./.github/workflows/bench.yml
+
+      - name: Checkout benchmarks
+        uses: actions/checkout@v4
+        with:
+          sparse-checkout: |
+            .asv/
+          ref: benchmarks
+
+      - name: Publish results
+        run: |
+          asv publish
+
+      - name: Move benchmarks to static pages
+        run: |
+          mv .asv/html docs/_build/html/benchmarks
 
       - name: Setup Pages
         uses: actions/configure-pages@v3
