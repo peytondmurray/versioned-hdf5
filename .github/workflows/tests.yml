@@ -57,4 +57,4 @@ jobs:
       - name: Run Tests
         run: |
           set -xe
-          pytest -v . --import-mode=importlib
+          pytest -v .
