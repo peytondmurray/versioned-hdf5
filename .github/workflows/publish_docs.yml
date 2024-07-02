@@ -54,9 +54,9 @@ jobs:
         run: |
           asv machine --machine gh-runner --yes
 
-          # Run on all tags, and any commit since 1.7.0
-          for ref in $(git tag) $(git rev-list 1.7.0..HEAD); do
-            asv run --machine gh-runner $ref --skip-existing --show-stderr
+          # Run on any commit since 1.7.0
+          for ref in $(git rev-list 1.7.0..HEAD); do
+            asv run --machine gh-runner --skip-existing --show-stderr $ref
           done
 
       - name: Show results
