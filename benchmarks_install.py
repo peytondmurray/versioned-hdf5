@@ -60,7 +60,8 @@ def install_dependencies(commit, env_dir):
     )
     if p.returncode == 1:
         print(
-            f"Overriding ndindex version 1.5 because commit {commit} comes before release {ndindex_1_5_pin_version}",
+            "Overriding ndindex version 1.5 because commit"
+            f"{commit} comes before release {ndindex_1_5_pin_version}.",
             flush=True,
         )
         install(env_dir, ndindex_version="==1.5")
