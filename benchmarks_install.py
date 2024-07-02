@@ -15,8 +15,7 @@ import sys
 
 # The first commit in versioned-hdf5 that is not compatible with ndindex 1.5;
 # this was released in versioned-hdf5 1.2.2
-# ndindex_1_5_pin_version = '1.2.2'
-ndindex_16_commit = "af9ba2313c73cf00c10f490407956ed3c0e6467e"
+ndindex_1_5_pin_version = '1.2.2'
 
 
 def run(command, *args, **kwargs):
@@ -54,17 +53,19 @@ def copy_env_dir(env_dir, commit):
 
 
 def install_dependencies(commit, env_dir):
-    # Check if HEAD is after the ndindex_16_commit.
+    # Check if HEAD is after 1.2.2
     # See https://stackoverflow.com/questions/3005392/how-can-i-tell-if-one-commit-is-a-descendant-of-another-commit
     p = run(
-        ["git", "merge-base", "--is-ancestor", ndindex_16_commit, commit], check=False
+        ["git", "merge-base", "--is-ancestor", ndindex_1_5_pin_version, commit], check=False
     )
     if p.returncode == 1:
-        print("Installing ndindex 1.5", flush=True)
+        print(
+            f"Overriding ndindex version 1.5 because commit {commit} comes before release {ndindex_1_5_pin_version}",
+            flush=True,
+        )
         install(env_dir, ndindex_version="==1.5")
     elif p.returncode == 0:
-        print("Installing ndindex >=1.5.1", flush=True)
-        install(env_dir, ndindex_version=">=1.5.1")
+        return
     else:
         raise RuntimeError(
             f"Error checking commit history for benchmarks install (git gave return code {p.returncode})"
