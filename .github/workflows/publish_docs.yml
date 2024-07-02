@@ -35,7 +35,7 @@ jobs:
 
       - name: Checkout benchmarks
         run: |
-          git fetch origin benchmarks
+          git fetch origin
           git checkout benchmarks -- .asv/ 2>/dev/null || echo ".asv/ doesn't exist in the benchmarks branch yet."
 
       - uses: actions/setup-python@v4
