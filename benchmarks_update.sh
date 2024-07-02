@@ -4,6 +4,7 @@ set -xe
 git fetch origin
 git fetch --tags
 git checkout master
+git pull origin master
 git checkout benchmarks -- .asv/ 2>/dev/null || echo ".asv/ doesn't exist in the benchmarks branch yet."
 
 pip install '.[bench]'
