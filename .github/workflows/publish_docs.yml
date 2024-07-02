@@ -20,60 +20,6 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  benchmark:
-    runs-on: ubuntu-latest
-    permissions:
-      # Give the default GITHUB_TOKEN write permission to commit and push the
-      # added or changed files to the repository.
-      contents: write
-    steps:
-      # Always checkout master branch, even if triggered by a tag.
-      # Otherwise the master branch doesn't get pulled.
-      # Also force checkout to get _all_ git history; needed for installing
-      # the correct version of ndindex during asv runs.
-      - uses: actions/checkout@v4
-        with:
-          ref: master
-          fetch-depth: 0
-
-      - name: Checkout benchmarks
-        run: |
-          git fetch origin
-          git checkout benchmarks -- .asv/ 2>/dev/null || echo ".asv/ doesn't exist in the benchmarks branch yet."
-
-      - uses: actions/setup-python@v4
-        with:
-          python-version: 3.12
-
-      - name: Install versioned-hdf5
-        run: |
-          pip install '.[bench]'
-
-      - name: Update git tags for benchmarking
-        run: |
-          git fetch --tags
-
-      - name: Run benchmarks on new commits
-        run: |
-          asv machine --machine gh-runner --yes
-
-          # Run on any commit since 1.7.0
-          for ref in $(git rev-list 1.7.0..HEAD); do
-            asv run --machine gh-runner --skip-existing --show-stderr $ref
-          done
-
-      - name: Show results
-        run: |
-          asv show
-
-      - name: Auto-commit to benchmarks branch
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: Updated benchmarks
-          branch: benchmarks
-          file_pattern: .asv/
-          add_options: '-f'
-
   build-and-deploy:
     environment:
       name: github-pages
