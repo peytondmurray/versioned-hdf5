@@ -1,4 +1,5 @@
 #!/bin/bash
+set -xe
 
 git fetch origin
 git fetch --tags
