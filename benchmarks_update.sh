@@ -2,7 +2,7 @@
 set -xe
 
 git fetch origin
-git fetch --tags
+git fetch origin --tags
 git checkout master
 git pull origin master
 git checkout benchmarks -- .asv/ 2>/dev/null || echo ".asv/ doesn't exist in the benchmarks branch yet."
@@ -10,10 +10,9 @@ git checkout benchmarks -- .asv/ 2>/dev/null || echo ".asv/ doesn't exist in the
 pip install '.[bench]'
 
 asv machine --yes
-for ref in $(git tag) $(git rev-list 1.7.0..HEAD); do
-    asv run --skip-existing --show-stderr $ref^
-done
 
+echo $(git tag) $(git rev-list 1.7.0..HEAD) | sed -e 's/\s\+/\n/g' > commits.txt
+asv run --skip-existing --show-stderr HASHFILE:commits.txt
 asv show
 
 git checkout benchmarks

@@ -3,6 +3,7 @@
 
 # airspeed velocity (benchmarks)
 .asv/
+commits.txt
 
 *.lprof
 
