@@ -11,7 +11,7 @@ pip install '.[bench]'
 
 asv machine --yes
 for ref in $(git tag) $(git rev-list 1.7.0..HEAD); do
-    asv run --skip-existing --show-stderr $ref
+    asv run --skip-existing --show-stderr $ref^
 done
 
 asv show
