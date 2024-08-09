@@ -3,6 +3,7 @@ requires = [
     "meson-python",
     "setuptools_scm",
     "Cython >= 3.0.10",
+    "pybind11",
 ]
 build-backend = "mesonpy"
 
