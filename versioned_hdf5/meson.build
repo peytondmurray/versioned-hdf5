@@ -27,3 +27,13 @@ py.extension_module(
     cython_args: ['--cplus'],
     override_options : ['cython_language=cpp'],
 )
+
+py.extension_module(
+    'slices',
+    [
+        'slices.cpp',
+    ],
+    install: true,
+    subdir: 'versioned_hdf5',
+    dependencies: compiled_deps,
+)

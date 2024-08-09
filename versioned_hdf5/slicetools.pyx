@@ -183,6 +183,7 @@ cpdef build_data_dict(dcpl, raw_data_name: str):
 
                     vspace_slice_tuple = _spaceid_to_slice(vspace_id)
                     srcspace_slice_tuple = _spaceid_to_slice(srcspace_id)
+
                     # the slice into the raw_data (srcspace_slice_tuple) is only on the first axis
                     data_dict[vspace_slice_tuple] = srcspace_slice_tuple.args[0]
             finally:
