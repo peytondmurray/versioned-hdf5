@@ -26,7 +26,7 @@ jobs:
         run: |
           ls -lash # Check the contents of the directory for .git/
           git status
-          SETUPTOOLS_SCM_DEBUG=1 pip install '.[bench]'
+          SETUPTOOLS_SCM_DEBUG=1 pip install '.[bench]' ndindex==1.8
 
       # Compare the most recent commit with the previous one
       - name: Run benchmarks
