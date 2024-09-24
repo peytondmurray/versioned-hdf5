@@ -18,7 +18,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt update -y
-          sudo apt install libhdf5-dev mpi-default-dev -y
+          sudo apt install git libhdf5-dev mpi-default-dev -y
 
       - name: Install versioned-hdf5
         run: |
