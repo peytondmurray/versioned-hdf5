@@ -11,7 +11,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt update -y
-          sudo apt install git build-essential libhdf5-dev mpi-default-dev -y
+          sudo apt install git build-essential pkg-config libhdf5-dev mpi-default-dev -y
 
       - uses: actions/checkout@v4
         with:
