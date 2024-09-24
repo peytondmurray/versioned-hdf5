@@ -22,7 +22,7 @@ jobs:
 
       - name: Install versioned-hdf5
         run: |
-          pip install '.[bench]'
+          SETUPTOOLS_SCM_DEBUG=1 pip install '.[bench]'
 
       # Compare the most recent commit with the previous one
       - name: Run benchmarks
