@@ -22,6 +22,8 @@ jobs:
 
       - name: Install versioned-hdf5
         run: |
+          ls -lash # Check the contents of the directory for .git/
+          git status
           SETUPTOOLS_SCM_DEBUG=1 pip install '.[bench]'
 
       # Compare the most recent commit with the previous one
