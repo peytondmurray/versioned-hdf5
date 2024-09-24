@@ -31,6 +31,7 @@ jobs:
       # Compare the most recent commit with the previous one
       - name: Run benchmarks
         run: |
+          asv machine --yes
           asv continuous HEAD^ HEAD
 
       - name: Checkout benchmarks
