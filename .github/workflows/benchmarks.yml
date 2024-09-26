@@ -19,8 +19,6 @@ jobs:
           fetch-depth: 0
 
       - uses: actions/setup-python@v5
-        env:
-          AGENT_TOOLSDIRECTORY=/home/runnerx/python
         with:
           python-version: 3.11
 
