@@ -19,6 +19,7 @@ jobs:
           fetch-depth: 0
 
       - uses: actions/setup-python@v5
+        id: setuppython
         with:
           python-version: 3.11
 
@@ -30,9 +31,7 @@ jobs:
         run: |
           export PYTHON_PATH=$(which python)
           export PYTHON_DIR=$(dirname $PYTHON_PATH)
-          echo $PYTHON_PATH
-          echo $PYTHON_DIR
-          LD_LIBRARY_PATH=$PYTHON_DIR/../lib pip install '.[bench]' ndindex==1.8 git+https://github.com/h5py/h5py.git@761e238d41c512086a7f887976e01d49a030621d
+          CPATH=$(python -c "from sysconfig import get_paths; print(get_paths()['include'])") LD_LIBRARY_PATH=$PYTHON_DIR/../lib pip install '.[bench]' ndindex==1.8 git+https://github.com/h5py/h5py.git@761e238d41c512086a7f887976e01d49a030621d
 
       # Compare the most recent commit with the previous one
       - name: Run benchmarks
