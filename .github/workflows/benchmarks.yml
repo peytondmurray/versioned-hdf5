@@ -23,6 +23,8 @@ jobs:
         with:
           python-version: 3.11
 
+      - uses: mxschmitt/action-tmate@v3
+
       # Pin ndindex to avoid bug with 1.9.1
       # Pin h5py to development version to avoid
       #   ValueError: Could not get virtual filename
