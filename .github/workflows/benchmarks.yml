@@ -29,6 +29,7 @@ jobs:
       # in 3.11.0
       - name: Install versioned-hdf5
         run: |
+          conda install pip -y
           # export CPATH=$(python -c "from sysconfig import get_paths; print(get_paths()['include'])")
           # export LD_LIBRARY_PATH=$PYTHON_DIR/../lib
           pip install '.[bench]' ndindex==1.8 git+https://github.com/h5py/h5py.git@761e238d41c512086a7f887976e01d49a030621d
