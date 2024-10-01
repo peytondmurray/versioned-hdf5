@@ -23,8 +23,6 @@ jobs:
         with:
           python-version: 3.11
 
-      - uses: mxschmitt/action-tmate@v3
-
       # Pin ndindex to avoid bug with 1.9.1
       # Pin h5py to development version to avoid
       #   ValueError: Could not get virtual filename
@@ -32,13 +30,13 @@ jobs:
       - name: Install versioned-hdf5
         run: |
           conda install pip -y
-          pip install '.[bench]' ndindex==1.8 git+https://github.com/h5py/h5py.git@761e238d41c512086a7f887976e01d49a030621d
+          conda run -n test pip install '.[bench]' ndindex==1.8 git+https://github.com/h5py/h5py.git@761e238d41c512086a7f887976e01d49a030621d
 
       # Compare the most recent commit with the previous one
       - name: Run benchmarks
         run: |
-          asv machine --yes
-          asv continuous HEAD^ HEAD
+          conda run -n test asv machine --yes
+          conda run -n test asv continuous HEAD^ HEAD
 
       - name: Checkout benchmarks
         run: |
