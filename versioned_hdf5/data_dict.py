@@ -1,7 +1,7 @@
 from h5py import h5p
 from h5py._hl.base import phil
 
-from .slicetools import _spaceid_to_slice
+from .slicetools import _spaceid_to_slice, spaceid_to_slice
 
 
 def build_data_dict(dcpl: h5p.PropDCID, raw_data_name: str):
@@ -23,8 +23,8 @@ def build_data_dict(dcpl: h5p.PropDCID, raw_data_name: str):
             vspace = dcpl.get_virtual_vspace(j)
             srcspace = dcpl.get_virtual_srcspace(j)
 
-            vspace_slice_tuple = _spaceid_to_slice(vspace.id)
-            srcspace_slice_tuple = _spaceid_to_slice(srcspace.id)
+            vspace_slice_tuple = spaceid_to_slice(vspace.id)
+            srcspace_slice_tuple = spaceid_to_slice(srcspace.id)
 
             # the slice into the raw_data (srcspace_slice_tuple) is only
             # on the first axis
