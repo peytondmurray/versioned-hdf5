@@ -1,3 +1,4 @@
+# cython: linetrace=True
 import sys
 from functools import lru_cache
 
@@ -199,8 +200,10 @@ cpdef _spaceid_to_slice(space_id: hid_t):
         return Tuple(
             Slice(0, 0),
         )
-    else:
+    elif sel_type == H5S_sel_type.H5S_SEL_POINTS:
         raise NotImplementedError("Point selections are not yet supported")
+    else:
+        raise HDF5Error()
 
 
 # cpdef build_data_dict(dcpl, raw_data_name: str):
