@@ -55,7 +55,10 @@ jobs:
           # Need to set timezone to avoid a sphinx/babel issue
           # when using act to run locally:
           # https://github.com/nektos/act/issues/1853
-          TZ=UTC sphinx-multiversion . _build/html
+          #
+          # Also disable nitpicky mode, as warnings cause sphinx-multiversion
+          # to stop after a version has warnings
+          TZ=UTC sphinx-multiversion . _build/html -D 'nitpicky=False'
 
       # sphinx-multiversion only builds docs for every tag;
       # this redirects users who visit ./index.html ->
