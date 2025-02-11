@@ -77,19 +77,13 @@ jobs:
       uses: pypa/cibuildwheel@v2.22.0
       env:
         CIBW_BUILD: '${{ matrix.python-version }}-*'
-        # rust doesn't seem to be available for musl linux on i686
         CIBW_SKIP: '*-musllinux_i686'
-        # we build for matrix.arch (only exists on macos), else 'auto'
         # CIBW_ARCHS: ${{ matrix.arch || 'auto' }}
-        # CIBW_ENVIRONMENT: 'PATH="$HOME/.cargo/bin:$PATH" CARGO_TERM_COLOR="always"'
-        # CIBW_ENVIRONMENT_WINDOWS: 'PATH="$UserProfile\.cargo\bin;$PATH"'
-        CIBW_BEFORE_BUILD: micromamba activate build-vhdf
-        # Linux wheels are built in manylinux containers; set up rust toolchain here
+        CIBW_BEFORE_BUILD_MACOS: eval "$(micromamba shell hook --shell )"; micromamba activate build-vhdf
+        CIBW_BEFORE_BUILD_WINDOWS: eval "$(micromamba shell hook --shell )"; micromamba activate build-vhdf
+        # Linux wheels are built in manylinux containers; set up hdf5 and openmpi dependencies here
         CIBW_BEFORE_BUILD_LINUX: >
-          "${SHELL}" <(curl -L micro.mamba.pm/install.sh)
-          eval "$(micromamba shell hook --shell bash)"
-          micromamba create -f environment.yml
-          micromamba activate build-vhdf
+            apt update -y && apt install -y hdf5-tools libhdf5-dev mpi-default-dev
         CIBW_BUILD_VERBOSITY: 1
 
     - name: List and check wheels
