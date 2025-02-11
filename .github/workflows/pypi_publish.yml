@@ -79,10 +79,7 @@ jobs:
         CIBW_BUILD: '${{ matrix.python-version }}-*'
         CIBW_SKIP: '*-musllinux_i686'
         # CIBW_ARCHS: ${{ matrix.arch || 'auto' }}
-        CIBW_BEFORE_BUILD_MACOS: |
-          eval "$(micromamba shell hook --shell bash )"
-          micromamba activate build-vhdf
-          micromamba list
+        CIBW_ENVIRONMENT_MACOS: "SHELL=micromamba-shell"
         CIBW_BEFORE_BUILD_WINDOWS: |
           micromamba shell hook --shell powershell | Out-String | Invoke-Expression
           micromamba activate build-vhdf
