@@ -13,7 +13,7 @@ on:
 
 jobs:
   build-sdist:
-    name: Build package
+    name: Build sdist
     runs-on: ubuntu-latest
     steps:
       - name: 💻 Checkout the repo
@@ -53,7 +53,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ['cp312']
+        python-version: ['3.12']
         include:
           - os: ubuntu-latest
             arch: x86_64
