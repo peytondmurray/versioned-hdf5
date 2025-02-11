@@ -83,7 +83,9 @@ jobs:
         # CIBW_BEFORE_BUILD_WINDOWS: "SHELL=micromamba-shell"
         # Linux wheels are built in manylinux containers; set up hdf5 and openmpi dependencies here
         CIBW_BEFORE_BUILD_LINUX: |
-            yum install -y hdf5 hdf5-devel openmpi openmpi-devel
+            yum install -y hdf5 hdf5-devel openmpi openmpi-devel yum-utils
+            repoquery -l openmpi
+            repoquery -l openmpi-devel
         CIBW_BUILD_VERBOSITY: 1
 
     - name: List and check wheels
