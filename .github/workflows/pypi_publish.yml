@@ -79,14 +79,15 @@ jobs:
         CIBW_BUILD: '${{ matrix.python-version }}-*'
         CIBW_SKIP: '*-musllinux_i686'
         # CIBW_ARCHS: ${{ matrix.arch || 'auto' }}
-        # CIBW_ENVIRONMENT_MACOS: "SHELL=micromamba-shell"
+        CIBW_ENVIRONMENT_MACOS: PATH=$CONDA_PREFIX/include:$PATH
+        CIBW_BEFORE_BUILD_MACOS: |
+            echo $CONDA_PREFIX
+            echo $PATH
         # CIBW_BEFORE_BUILD_WINDOWS: "SHELL=micromamba-shell"
         # Linux wheels are built in manylinux containers; set up hdf5 and openmpi dependencies here
         CIBW_ENVIRONMENT_LINUX: PATH=/usr/lib64/openmpi/bin:$PATH
         CIBW_BEFORE_BUILD_LINUX: |
             yum install -y hdf5 hdf5-devel openmpi openmpi-devel yum-utils
-
-
         CIBW_BUILD_VERBOSITY: 1
 
     - name: List and check wheels
