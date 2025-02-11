@@ -47,54 +47,64 @@ jobs:
           path: ./wheelhouse/*.tar.gz
 
   build-wheels:
-    name: >
-      build ${{ matrix.python-version }} on ${{ matrix.platform || matrix.os }}
-      ${{ (matrix.arch) || '' }}
+    name: 'Wheels: ${{ matrix.os }} ${{ matrix.arch }} ${{ matrix.python }}'
+    runs-on: ${{ matrix.os }}
+    continue-on-error: true
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu, windows, macos]
         python-version: ['cp312']
         include:
-          - os: ubuntu
-            platform: linux
-          - os: windows
-            ls: dir
+          - os: ubuntu-latest
+            arch: x86_64
+          - os: ubuntu-24.04-arm
+            arch: aarch64
+          - os: windows-latest
+            arch: AMD64
+          - os: macos-14
+            arch: arm64
+          - os: macos-13
+            arch: x86_64
 
-    runs-on: ${{ format('{0}-latest', matrix.os) }}
     steps:
     - name: Check out the repo
       uses: actions/checkout@v4
 
-    - if: matrix.os == 'macos' || matrix.os == 'windows'
-      name: 🐍 Set up Python
-      uses: mamba-org/setup-micromamba@v2
+    # Get HDF5 outside of cibuildwheel so that we can set env vars via GITHUB_ENV
+    # inside the HDF5-getting scripts and have them be in effect for the
+    # cibuildwheel step.
+
+    # Windows HDF5
+    - uses: nuget/setup-nuget@v2
+      if: runner.os == 'Windows'
+    - uses: actions/setup-python@v5
+      if: runner.os == 'Windows'
       with:
-        environment-file: environment.yml
-        init-shell: zsh bash powershell
+        python-version: 3.12
+    - run: bash ./ci/cibw_before_all_windows.sh "${{ github.workspace }}"
+      if: runner.os == 'Windows'
 
-    - name: Build ${{ matrix.platform || matrix.os }} binaries
-      uses: pypa/cibuildwheel@v2.22.0
+    # macOS HDF5
+    - run: bash ./ci/cibw_before_all_macos.sh "${{ github.workspace }}"
+      if: runner.os == 'macOS'
+
+    # Triage build
+    - run: bash ./ci/triage_build.sh "${{ matrix.arch }}" "${{ github.event.pull_request.head.sha || github.sha }}" "${{ matrix.python }}"
+
+    # Now actually build the wheels
+    - uses: pypa/cibuildwheel@v2.22.0
       env:
-        CIBW_BUILD: '${{ matrix.python-version }}-*'
-        CIBW_SKIP: '*-musllinux_i686'
-        # CIBW_ARCHS: ${{ matrix.arch || 'auto' }}
-        CIBW_ENVIRONMENT_MACOS: PATH=$CONDA_PREFIX/include:$PATH
-        CIBW_BEFORE_BUILD_MACOS: |
-            echo $CONDA_PREFIX
-            echo $PATH
-        # CIBW_BEFORE_BUILD_WINDOWS: "SHELL=micromamba-shell"
-        # Linux wheels are built in manylinux containers; set up hdf5 and openmpi dependencies here
-        CIBW_ENVIRONMENT_LINUX: PATH=/usr/lib64/openmpi/bin:$PATH
-        CIBW_BEFORE_BUILD_LINUX: |
-            yum install -y hdf5 hdf5-devel openmpi openmpi-devel yum-utils
-        CIBW_BUILD_VERBOSITY: 1
+        # Note that tool.cibuildwheel "skip" in pyproject.toml also limits what gets built
+        CIBW_ARCHS: ${{ matrix.arch }}
+        CIBW_BUILD: ${{ env.CIBW_BUILD }}
+        CIBW_SKIP: ${{ env.CIBW_SKIP }}
+        CIBW_BEFORE_BUILD: ${{ env.CIBW_BEFORE_BUILD }}
+        CIBW_BUILD_FRONTEND: ${{ env.CIBW_BUILD_FRONTEND }}
+        CIBW_PRERELEASE_PYTHONS: ${{ env.CIBW_PRERELEASE_PYTHONS }}
+        CIBW_BEFORE_TEST: ${{ env.CIBW_BEFORE_TEST }}
 
-    - name: List and check wheels
-      run: |
-        pip install twine pkginfo>=1.10.0
-        ${{ matrix.ls || 'ls -lh' }} wheelhouse/
-        twine check wheelhouse/*
+    - run: python ./ci/bundle_hdf5_whl.py wheelhouse
+      if: runner.os == 'Windows'
 
     - name: Upload wheels
       uses: actions/upload-artifact@v4
