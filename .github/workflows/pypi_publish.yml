@@ -69,6 +69,8 @@ jobs:
     steps:
     - name: Check out the repo
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # get the non-merge commit for PRs
 
     # Get HDF5 outside of cibuildwheel so that we can set env vars via GITHUB_ENV
     # inside the HDF5-getting scripts and have them be in effect for the
@@ -80,7 +82,7 @@ jobs:
     - uses: actions/setup-python@v5
       if: runner.os == 'Windows'
       with:
-        python-version: 3.12
+        python-version: ${{ matrix.python-version }}
     - run: bash ./ci/cibw_before_all_windows.sh "${{ github.workspace }}"
       if: runner.os == 'Windows'
 
@@ -89,7 +91,7 @@ jobs:
       if: runner.os == 'macOS'
 
     # Triage build
-    - run: bash ./ci/triage_build.sh "${{ matrix.arch }}" "${{ github.event.pull_request.head.sha || github.sha }}" "${{ matrix.python }}"
+    - run: bash ./ci/triage_build.sh "${{ matrix.arch }}" "${{ github.event.pull_request.head.sha || github.sha }}" "${{ matrix.python-version }}"
 
     # Now actually build the wheels
     - uses: pypa/cibuildwheel@v2.22.0
