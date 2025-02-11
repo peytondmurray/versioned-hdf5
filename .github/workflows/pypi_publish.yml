@@ -83,7 +83,7 @@ jobs:
         CIBW_BEFORE_BUILD_WINDOWS: eval "$(micromamba shell hook --shell )"; micromamba activate build-vhdf
         # Linux wheels are built in manylinux containers; set up hdf5 and openmpi dependencies here
         CIBW_BEFORE_BUILD_LINUX: >
-            apt update -y && apt install -y hdf5-tools libhdf5-dev mpi-default-dev
+            dnf install -y hdf5 hdf5-devel mpi-devel
         CIBW_BUILD_VERBOSITY: 1
 
     - name: List and check wheels
