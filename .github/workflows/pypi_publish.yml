@@ -11,27 +11,6 @@ on:
         description: 'Test release: publish on test.pypi.org'
         default: false
 
-
-env:
-  CIBW_BEFORE_BUILD: |
-    mkdir -p $HOME/.local/lib/pkgconfig &&
-    echo 'prefix=/usr
-    exec_prefix=${prefix}
-    libdir=${exec_prefix}/lib
-    includedir=${prefix}/include
-
-    Name: hdf5
-    Description: HDF5 (Hierarchical Data Format 5) Software Library
-    Version: 1.14.5
-
-    Cflags: -I${includedir}
-    Libs: -L${libdir} -lhdf5
-    Requires:
-    Libs.private: -lzlib-static
-    Requires.private:' > $HOME/.local/lib/pkgconfig/hdf5.pc &&
-    export PKG_CONFIG_PATH=$HOME/.local/lib/pkgconfig:$PKG_CONFIG_PATH
-
-
 jobs:
   build-sdist:
     name: Build sdist
@@ -111,6 +90,10 @@ jobs:
     # macOS HDF5
     - run: bash ./ci/cibw_before_all_macos.sh "${{ github.workspace }}"
       if: runner.os == 'macOS'
+
+    - name: Setup tmate session
+      if: runner.os == 'macOS'
+      uses: mxschmitt/action-tmate@v3
 
     # Triage build
     - run: bash ./ci/triage_build.sh "${{ matrix.arch }}" "${{ github.event.pull_request.head.sha || github.sha }}" "${{ matrix.python-version }}"
