@@ -63,6 +63,23 @@ else
             export LD_LIBRARY_PATH="$HDF5_DIR/lib:${LD_LIBRARY_PATH}"
             export PKG_CONFIG_PATH="$HDF5_DIR/lib/pkgconfig:${PKG_CONFIG_PATH}"
             ZLIB_ARG="--with-zlib=$HDF5_DIR"
+
+            # Add an hdf5.pc so that it can be found by meson
+            echo "prefix=${HDF5_DIR}
+            exec_prefix=${prefix}
+            libdir=${exec_prefix}/lib
+            includedir=${prefix}/include
+
+            Name: hdf5
+            Description: HDF5 (Hierarchical Data Format 5) Software Library
+            Version: ${HDF5_VERSION}
+
+            Cflags: -I${includedir}
+            Libs: -L${libdir}  -lhdf5
+            Requires:
+            Libs.private:   -lzlib-static
+            Requires.private:" >> ${HDF5_DIR}/lib/pkgconfig/hdf5.pc
+
         fi
 
         pushd /tmp
