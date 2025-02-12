@@ -73,6 +73,11 @@ jobs:
       with:
         fetch-depth: 0  # get the non-merge commit for PRs
 
+    - name: 🐍 Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
     # Get HDF5 outside of cibuildwheel so that we can set env vars via GITHUB_ENV
     # inside the HDF5-getting scripts and have them be in effect for the
     # cibuildwheel step.
