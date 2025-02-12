@@ -26,6 +26,9 @@ jobs:
           activate-environment: build-vhdf
           environment-file: environment.yml
 
+      - name: Setup tmate session
+        uses: mxschmitt/action-tmate@v3
+
       - name: 🚀 Install build dependencies
         run: |
           pip install build twine
