@@ -23,7 +23,7 @@ npy_include_path = run_command(
 ).stdout().strip()
 
 
-hdf5_dep = dependency('hdf5')
+hdf5_dep = dependency('hdf5', required: false)
 mpi_dep = dependency('mpi')
 
 # if pkg-config doesn't find hdf5 (.pc file not generated?), try heuristically grabbing it
