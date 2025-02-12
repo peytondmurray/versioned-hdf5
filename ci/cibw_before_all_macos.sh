@@ -27,4 +27,4 @@ if [[ "$GITHUB_ENV" != "" ]]; then
 fi
 
 # Install MPI
-brew install open-mpi
+# brew install open-mpi
