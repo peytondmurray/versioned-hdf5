@@ -22,9 +22,27 @@ npy_include_path = run_command(
     check: true
 ).stdout().strip()
 
+
+hdf5_dep = dependency('hdf5')
+mpi_dep = dependency('mpi', required: false)
+
+# if pkg-config doesn't find hdf5 (.pc file not generated?), try heuristically grabbing it
+# if not hdf5_dep.found()
+#     hdf5_dep = declare_dependency(
+#         link_args : ['-lhdf5'],
+#         include_directories : ['/usr/local/include'],
+#     )
+# endif
+
+
+# In conda, this is installed as "ompi.pc"
+if not mpi_dep.found()
+  mpi_dep = dependency('ompi')
+endif
+
 compiled_deps = [
-    dependency('hdf5'),
-    dependency('mpi'),
+  mpi_dep,
+  hdf5_dep,
 ]
 
 py.extension_module(
